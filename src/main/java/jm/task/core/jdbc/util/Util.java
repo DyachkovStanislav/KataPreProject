@@ -15,7 +15,7 @@ public class Util {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-            System.out.println("Connection ok");
+            
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Connection error");

@@ -9,36 +9,28 @@ import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
 
-    private final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS USER(id bigint auto_increment primary key," +
-            "name varchar(35) not null," +
-            "lastName varchar(45) not null," +
-            "age int not null," +
-            "constraint id_UNIQUE unique (id))";
-    private final String DROP_TABLE = "DROP TABLE IF EXISTS USER";
-    private final String DELETE = "DELETE FROM USER";
-    private final String GET_ALL = "SELECT ID, NAME, LASTNAME, AGE FROM USER";
-    private final String ADD = "INSERT INTO USER (name, lastname, age) VALUES(?, ?, ?)";
-    private final String REM = "DELETE FROM USER WHERE ID = ?";
-
-
     public UserDaoJDBCImpl() {
 
     }
 
     public void createUsersTable() {
-        Util util = new Util();
+        String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS USER(id bigint auto_increment primary key," +
+                "name varchar(35) not null," +
+                "lastName varchar(45) not null," +
+                "age int not null," +
+                "constraint id_UNIQUE unique (id))";
         try {
-            PreparedStatement preparedStatement = util.getConnection().prepareStatement(CREATE_TABLE);
-            preparedStatement.execute(CREATE_TABLE);
+            Statement statement = Util.getConnection().createStatement();
+            statement.execute(CREATE_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void dropUsersTable() {
-        Util util = new Util();
+        String DROP_TABLE = "DROP TABLE IF EXISTS USER";
         try {
-            Statement statement = util.getConnection().createStatement();
+            Statement statement = Util.getConnection().createStatement();
             statement.executeUpdate(DROP_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,23 +39,23 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        Util util = new Util();
+        String ADD = "INSERT INTO USER (name, lastname, age) VALUES(?, ?, ?)";
         try {
-            PreparedStatement statement = util.getConnection().prepareStatement(ADD);
+            PreparedStatement statement = Util.getConnection().prepareStatement(ADD);
             statement.setString(1, name);
             statement.setString(2, lastName);
             statement.setLong(3, age);
             statement.executeUpdate();
+            System.out.println("User  именем " + name + " добавлен в базу данных");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void removeUserById(long id) {
-        Util util = new Util();
+        String REM = "DELETE FROM USER WHERE ID = ?";
         try {
-            User user = new User();
-            PreparedStatement preparedStatement = util.getConnection().prepareStatement(REM);
+            PreparedStatement preparedStatement = Util.getConnection().prepareStatement(REM);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -73,11 +65,11 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public List<User> getAllUsers() {
-        Util util = new Util();
+        String GET_ALL = "SELECT ID, NAME, LASTNAME, AGE FROM USER";
         List<User> list = new ArrayList<>();
-        try (Connection connection = util.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection connection = Util.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(GET_ALL);
 
             while (resultSet.next()) {
                 User user = new User();
@@ -95,9 +87,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        Util util = new Util();
+        String DELETE = "DELETE FROM USER";
         try {
-            Statement statement = util.getConnection().createStatement();
+            Statement statement = Util.getConnection().createStatement();
             statement.executeUpdate(DELETE);
         } catch (SQLException e) {
             e.printStackTrace();
